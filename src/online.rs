@@ -1,5 +1,4 @@
 use arc_swap::ArcSwap;
-use regex::Regex;
 use reqwest::StatusCode;
 use std::{
     collections::BTreeMap,
@@ -36,12 +35,12 @@ pub fn lookup(mac: impl Into<String>) -> Result<String, String> {
         }
     }
 
-    let new_mac = mac.into().to_ascii_uppercase().replace("-", ":");
+    let new_mac = mac.into().to_ascii_uppercase().replace('-', ":");
 
-    let regex = Regex::new(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$").unwrap();
-    if regex.find(&new_mac).is_none() {
+    if crate::MAC_REGEX.find(new_mac.as_bytes()).is_none() {
         return Err(String::from("Invalid MAC address"));
     }
+
     let mac_val = helpers::mac_to_u64(&new_mac).ok_or("Invalid MAC format")?;
 
     let content = CONTENT.load();

@@ -1,4 +1,4 @@
-use regex::Regex;
+use regex::bytes::{Regex, RegexBuilder};
 use std::{collections::BTreeMap, sync::LazyLock};
 
 mod helpers;
@@ -7,12 +7,17 @@ pub mod online;
 
 static CONTENT: LazyLock<BTreeMap<(u64, u8), String>> =
     LazyLock::new(|| helpers::parse_content(include_str!("manuf.txt")));
+static MAC_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| RegexBuilder::new(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
+        .unicode(false)
+        .build()
+        .unwrap()
+    );
 
 pub fn lookup(mac: impl Into<String>) -> Result<String, String> {
-    let new_mac = mac.into().to_ascii_uppercase().replace("-", ":");
+    let new_mac = mac.into().to_ascii_uppercase().replace('-', ":");
 
-    let regex = Regex::new(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$").unwrap();
-    if regex.find(new_mac.as_str()).is_none() {
+    if MAC_REGEX.find(new_mac.as_bytes()).is_none() {
         return Err(String::from("Invalid MAC address"));
     }
     let mac_val = helpers::mac_to_u64(&new_mac).ok_or("Invalid MAC format")?;
