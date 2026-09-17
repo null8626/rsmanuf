@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 pub(crate) fn mac_to_u64(mac: &str) -> Option<u64> {
-    let hex: String = mac.split(|c| c == ':').filter(|s| !s.is_empty()).collect();
+    let hex: String = mac.split(':').filter(|s| !s.is_empty()).collect();
     let padded_hex = match hex.len() {
         6 => format!("{hex}000000"),
         12 => hex,
