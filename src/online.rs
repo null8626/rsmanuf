@@ -44,7 +44,7 @@ pub fn lookup(mac: impl Into<String>) -> Result<String, String> {
     let mac_val = helpers::mac_to_u64(&new_mac).ok_or("Invalid MAC format")?;
 
     let content = CONTENT.load();
-    for &cidr in &[36, 28, 24] {
+    for cidr in [36, 28, 24] {
         let masked = helpers::mask_mac(mac_val, cidr);
         if let Some(m) = content.get(&(masked, cidr)) {
             return Ok(m.clone());
